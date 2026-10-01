@@ -54,6 +54,7 @@ export interface RepositoryState {
   defaultBranch: string;
   rulesets: GitHubRuleset[];
   workflowChecks: string[];
+  branchHead?: string;
 }
 
 export type PlanAction =
@@ -65,7 +66,6 @@ export interface GovernancePlan {
   schemaVersion: 1;
   repository: string;
   defaultBranch: string;
-  generatedAt?: string;
   actions: PlanAction[];
   preservedUnmanagedRulesets: string[];
 }

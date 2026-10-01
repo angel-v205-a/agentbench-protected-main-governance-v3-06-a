@@ -1,6 +1,10 @@
-import type { ContractRuleset, GitHubRuleset } from "./types.js";
+import type { ContractRuleset, GitHubRuleset, MergeMethod } from "./types.js";
 
-export function desiredRuleset(contract: ContractRuleset, defaultBranch: string): GitHubRuleset {
+export function desiredRuleset(
+  contract: ContractRuleset,
+  defaultBranch: string,
+  mergeMethod?: MergeMethod
+): GitHubRuleset {
   const include = contract.branches.map((branch) =>
     branch === "~DEFAULT_BRANCH" ? `refs/heads/${defaultBranch}` : branch
   );
@@ -12,6 +16,8 @@ export function desiredRuleset(contract: ContractRuleset, defaultBranch: string)
     rules.push({
       type: "pull_request",
       parameters: {
+        ...(mergeMethod ? { allowed_merge_methods: [mergeMethod] } : {}),
+        require_extra_approval_for_unattributed_changes: true,
         required_approving_review_count: contract.rules.requiredApprovals,
         dismiss_stale_reviews_on_push: false,
         require_code_owner_review: false,

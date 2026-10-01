@@ -8,13 +8,18 @@ export interface RepositoryCoordinates {
 
 export function parseGitHubRemote(remote: string): RepositoryCoordinates {
   const value = remote.trim();
-  const https = /^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?$/.exec(value);
+  const https = /^https:\/\/github\.com\/([A-Za-z0-9-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(
+    value
+  );
   if (https) {
     const [, owner, repository] = https;
     if (owner && repository) return { owner, repository };
   }
 
-  const ssh = /^git@github\.com:([^/]+)\/([^/]+?)(?:\.git)?$/.exec(value);
+  const ssh =
+    /^(?:git@github\.com:|ssh:\/\/git@github\.com\/)([A-Za-z0-9-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(
+      value
+    );
   if (ssh) {
     const [, owner, repository] = ssh;
     if (owner && repository) return { owner, repository };
