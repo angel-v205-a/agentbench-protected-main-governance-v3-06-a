@@ -22,6 +22,7 @@ describe("managed policy reconciliation", () => {
   it("captures managed pre-change state before the first remote write", async () => {
     const transport = new RecordingTransport();
     transport.queue(expectedRuleset(73), 201);
+    transport.queue(expectedRuleset(73));
     const client = new GitHubClient("octo", "repository", transport);
     const snapshots = store();
     const plan: GovernancePlan = {
@@ -33,13 +34,14 @@ describe("managed policy reconciliation", () => {
     };
     await applyPlan(client, contract(), plan, [], snapshots);
     expect(snapshots.saved).toHaveLength(1);
-    expect(transport.calls).toHaveLength(1);
+    expect(transport.calls.map((c) => c.method)).toEqual(["POST", "GET"]);
   });
 
   it("creates and verifies a replacement before deleting obsolete policy", async () => {
     const transport = new RecordingTransport();
-    transport.queue(null, 204);
     transport.queue(expectedRuleset(88), 201);
+    transport.queue(expectedRuleset(88));
+    transport.queue(null, 204);
     const client = new GitHubClient("octo", "repository", transport);
     const old = { ...expectedRuleset(18), name: "agentbench/legacy-main" };
     const plan: GovernancePlan = {
@@ -76,8 +78,7 @@ describe("managed policy reconciliation", () => {
 describe("restore", () => {
   it("preserves unmanaged rulesets", async () => {
     const transport = new RecordingTransport();
-    transport.queue(null, 204);
-    transport.queue(expectedRuleset(62), 201);
+    transport.queue(expectedRuleset(12));
     const client = new GitHubClient("octo", "repository", transport);
     const managed = expectedRuleset(12);
     const unmanaged = { ...expectedRuleset(90), name: "manual/security-freeze" };
